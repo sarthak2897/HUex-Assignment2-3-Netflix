@@ -3,6 +3,8 @@ package com.netflixmovie.service;
 
 import com.netflixmovie.domain.NetflixMovie;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +14,8 @@ public interface NetflixMovieService {
 
     NetflixMovie findMovieById(String id);
 
-    NetflixMovie postNetflixMovie(NetflixMovie netflixMovie);
+    NetflixMovie insertNetflixMovieToDB(NetflixMovie netflixMovie);
+
+    NetflixMovie insertNetflixMovieToCSV(NetflixMovie netflixMovie) throws IOException, Exception;
 
 }

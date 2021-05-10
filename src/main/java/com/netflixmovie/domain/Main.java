@@ -15,12 +15,13 @@ import java.util.stream.Collectors;
 
 public class Main {
     public static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MMM-yy");
+    //public static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final static Logger logger = Logger.getLogger(Main.class.getName());
     public static void main(String[] args) {
         File csvFile = new File("C:\\Users\\hp\\Downloads\\netflix_title.csv");
         Scanner sc = new Scanner(System.in);
-        LocalDate  startDate = LocalDate.parse(args[0],dtf);
-        LocalDate  endDate = LocalDate.parse(args[1],dtf);
+        LocalDate  startDate = LocalDate.parse(LocalDate.parse(args[0],dtf).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        LocalDate  endDate = LocalDate.parse(LocalDate.parse(args[1],dtf).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         System.out.println(startDate+" "+endDate);
         if(csvFile.exists() && csvFile.isFile()){
             List<NetflixMovie> netflixMovies = convertCSVToList(csvFile);
@@ -100,17 +101,18 @@ public class Main {
 
     private static LocalDate dateFormatter(String date){
         LocalDate formatterDate =  null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         if(date.equals(""))
             return formatterDate;
         if(!date.contains("-")){
             String[] modifiedDate  = date.split(" ");
             String finalDate = (modifiedDate[2].length() < 3 ? "0"+modifiedDate[2].charAt(0) : modifiedDate[2].substring(0,2))+"-"+modifiedDate[1].substring(0,3)+"-"+modifiedDate[3].substring(modifiedDate.length-2,modifiedDate.length);
-            formatterDate = LocalDate.parse(finalDate, dtf);
-
+            formatterDate = LocalDate.parse(LocalDate.parse(finalDate, dtf).format(formatter));
         }
         else if(date.indexOf("-")>-1 && date.indexOf("-") < 2){
             String modifiedDate = 0+date;
-            formatterDate = LocalDate.parse(modifiedDate, dtf);
+            DateTimeFormatter innerFormatter = DateTimeFormatter.ofPattern("dd-MMM-yy");
+            formatterDate = LocalDate.parse(LocalDate.parse(modifiedDate, dtf).format(formatter));
         }
         else{
             formatterDate = LocalDate.parse(date, dtf);

@@ -9,8 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -25,7 +27,7 @@ import java.util.stream.Stream;
 @RestController
 public class NetflixMovieController {
     private static Logger logger = LoggerFactory.getLogger(NetflixMovieController.class);
-    File csvFile = new File("C:\\Users\\hp\\Downloads\\netflix_title.csv");
+    File csvFile = new File("C:\\Users\\hp\\Downloads\\netflix.csv");
     List<NetflixMovie> netflixMoviesList = Main.convertCSVToList(csvFile);
 
     @Autowired
@@ -51,10 +53,19 @@ public class NetflixMovieController {
     }
 
     @PostMapping("/tvshows")
-    public ResponseEntity<NetflixMovie> insertMovieData(@RequestBody NetflixMovie netflixMovie){
-        //Sending JSON data for Netflix movies/ TV Shows to insert in to the database
-        NetflixMovie movie = netflixMovieService.postNetflixMovie(netflixMovie);
-        return new ResponseEntity<>(movie,HttpStatus.OK);
+    public ResponseEntity<NetflixMovie> insertMovieData(@RequestBody NetflixMovie netflixMovie,@RequestParam String datasource) throws Exception {
+        //Sending JSON data for Netflix movies/ TV Shows to insert into the database
+        if(datasource.equalsIgnoreCase("db")) {
+            logger.info("Inserting data into db.");
+            NetflixMovie movie = netflixMovieService.insertNetflixMovieToDB(netflixMovie);
+            return new ResponseEntity<>(movie, HttpStatus.CREATED);
+        }
+        else{
+            //Sending JSON data for Netflix movies/ TV Shows to insert into the csv file
+            logger.info("Inserting data into CSV file.");
+            NetflixMovie movie = netflixMovieService.insertNetflixMovieToCSV(netflixMovie);
+            return new ResponseEntity<>(movie,HttpStatus.CREATED);
+        }
     }
 
     @GetMapping(path="/tvshows")
@@ -88,12 +99,13 @@ public class NetflixMovieController {
     public ResponseEntity<List<NetflixMovie>> getTvShows(@RequestParam Map<String,String> params) {
         Stream<NetflixMovie> stream = netflixMoviesList.stream();
         List<NetflixMovie> aggregateList = null;
-       DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MMM-yy");
+       //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MMM-yy");
         long start = System.currentTimeMillis();
         //Check if the X-AUTH-TOKEN is there in the request header before accessing the APIs
             if (params.get("startDate") != null && params.get("endDate") != null) {
-                LocalDate startDate = LocalDate.parse(params.get("startDate"), dtf);
-                LocalDate endDate = LocalDate.parse(params.get("endDate"), dtf);
+                LocalDate startDate = LocalDate.parse(params.get("startDate"),DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                LocalDate endDate = LocalDate.parse(params.get("endDate"),DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
                 stream = stream.filter(movie -> movie.getDateAdded() != null && movie.getDateAdded().isAfter(startDate) && movie.getDateAdded().isBefore(endDate));
             }
             if (params.get("movieType") != null) {
