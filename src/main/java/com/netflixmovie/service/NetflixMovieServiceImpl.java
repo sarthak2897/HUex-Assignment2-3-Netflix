@@ -88,7 +88,7 @@ public class NetflixMovieServiceImpl implements NetflixMovieService{
 
     @Override
     public NetflixMovie insertNetflixMovieToCSV(NetflixMovie netflixMovie) throws Exception {
-        File file = new File("C:\\Users\\hp\\Downloads\\netflix.csv");
+        File file = new File("C:\\Users\\sartnagpal\\Downloads\\netflix_title.csv");
         netflixMovie.setShowId("s"+(noOfRecords(file)+1));
         FileWriter csvWriter = new FileWriter(file,true);
         csvWriter.append(netflixMovie.getShowId()==null ? "" : netflixMovie.getShowId());

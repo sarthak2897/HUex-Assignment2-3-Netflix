@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 @RestController
 public class NetflixMovieController {
     private static Logger logger = LoggerFactory.getLogger(NetflixMovieController.class);
-    File csvFile = new File("C:\\Users\\hp\\Downloads\\netflix.csv");
+    File csvFile = new File("C:\\Users\\sartnagpal\\Downloads\\netflix_title.csv");
     List<NetflixMovie> netflixMoviesList = Main.convertCSVToList(csvFile);
 
     @Autowired

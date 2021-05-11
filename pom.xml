@@ -170,6 +170,7 @@
 						</executions>
 					</plugin>
 				</plugins>
+				<finalName>NetflixApp</finalName>
 			</build>
 			<reporting>
 				<plugins>

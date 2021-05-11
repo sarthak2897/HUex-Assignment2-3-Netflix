@@ -9,5 +9,4 @@ public class NetflixMovieApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(NetflixMovieApplication.class, args);
 	}
-
 }
