@@ -9,6 +9,8 @@ services:
       - MYSQL_DATABASE=employee_details
     ports:
       - "3307:3306"
+    volumes:
+    - mysql-data:/var/lib/mysql
   netflixapp:
     image: netflixapp
     ports:
@@ -22,3 +24,5 @@ services:
       dockerfile: "Dockerfile"
     depends_on:
       - netflixDB
+volumes:
+  mysql-data:
