@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
@@ -27,8 +28,9 @@ import java.util.stream.Stream;
 @RestController
 public class NetflixMovieController {
     private static Logger logger = LoggerFactory.getLogger(NetflixMovieController.class);
-    File csvFile = new File("C:\\Users\\sartnagpal\\Downloads\\netflix_title.csv");
-    List<NetflixMovie> netflixMoviesList = Main.convertCSVToList(csvFile);
+    //File csvFile = new File("C:\\Users\\sartnagpal\\Downloads\\netflix_titles.csv");
+    File csvFile = new File("./src/main/resources/netflix_titles1.csv");
+
 
     @Autowired
     HttpServletRequest httpServletRequest;
@@ -97,6 +99,7 @@ public class NetflixMovieController {
 
     // Scenario when the netflix_title.csv file is read and output is displayed through functional programming
     public ResponseEntity<List<NetflixMovie>> getTvShows(@RequestParam Map<String,String> params) {
+        List<NetflixMovie> netflixMoviesList = Main.convertCSVToList(csvFile);
         Stream<NetflixMovie> stream = netflixMoviesList.stream();
         List<NetflixMovie> aggregateList = null;
        //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MMM-yy");
@@ -127,4 +130,5 @@ public class NetflixMovieController {
             return new ResponseEntity<>(aggregateList, headers, HttpStatus.OK);
 
     }
+
 }

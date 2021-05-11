@@ -1,5 +1,8 @@
 package com.netflixmovie.domain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,20 +13,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class Main {
     public static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MMM-yy");
     //public static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final static Logger logger = Logger.getLogger(Main.class.getName());
+    private final static Logger logger = LoggerFactory.getLogger(Main.class.getName());
     public static void main(String[] args) {
         //File csvFile = new File("C:\\Users\\hp\\Downloads\\netflix_title.csv");
-        File csvFile = new File("C:\\Users\\sartnagpal\\Downloads\\netflix-title.csv");
+        //File csvFile = new File("C:\\Users\\sartnagpal\\Downloads\\netflix-titles.csv");
+        File csvFile = new File("./src/main/resources/netflix_titles1.csv");
         Scanner sc = new Scanner(System.in);
         LocalDate  startDate = LocalDate.parse(LocalDate.parse(args[0],dtf).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         LocalDate  endDate = LocalDate.parse(LocalDate.parse(args[1],dtf).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        System.out.println(startDate+" "+endDate);
+
         if(csvFile.exists() && csvFile.isFile()){
             List<NetflixMovie> netflixMovies = convertCSVToList(csvFile);
             logger.info("File read! Enter the number of records (n): ");
@@ -60,8 +63,8 @@ public class Main {
 
         }
         else{
-            //logger.error("Can't read the file!");
-            logger.log(Level.parse("error"),"Can't read the file!");
+            logger.error("Can't read the file!");
+
         }
     }
 
@@ -100,7 +103,7 @@ public class Main {
         return null;
     }
 
-    private static LocalDate dateFormatter(String date){
+    public static LocalDate dateFormatter(String date){
         LocalDate formatterDate =  null;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         if(date.equals(""))
