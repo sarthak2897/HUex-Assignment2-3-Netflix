@@ -6,15 +6,20 @@ import com.netflixmovie.domain.NetflixMovie;
 import com.netflixmovie.exception.NetflixIdNotFoundException;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.CSVWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 
 import javax.persistence.criteria.Predicate;
 import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,12 +32,11 @@ public class NetflixMovieServiceImpl implements NetflixMovieService{
 
     private NetflixMovieRepository netflixMovieRepository;
     private static Logger logger = LoggerFactory.getLogger(NetflixMovieServiceImpl.class);
-    File file = new File("./src/main/resources/netflix_titles1.csv");
+
     @Autowired
-    public NetflixMovieServiceImpl(NetflixMovieRepository netflixMovieRepository){
+    public NetflixMovieServiceImpl(NetflixMovieRepository netflixMovieRepository) throws IOException {
         this.netflixMovieRepository = netflixMovieRepository;
     }
-    public NetflixMovieServiceImpl(){}
 
     // Single method to handle all get requests concnerned with request parameters using Criteria API JPA 2.0
     public List<NetflixMovie> findByCriteria(Map<String,String> params) {
@@ -92,41 +96,50 @@ public class NetflixMovieServiceImpl implements NetflixMovieService{
     //Inserting new movie to CSV file
     @Override
     public NetflixMovie insertNetflixMovieToCSV(NetflixMovie netflixMovie) throws Exception {
-        //File file = new File("C:\\Users\\sartnagpal\\Downloads\\netflix_titles.csv");
+        FileWriter csvWriter = null;
+        try {
+            csvWriter = new FileWriter("netflix_titles1.csv", true);
+            netflixMovie.setShowId("s" + (noOfRecords() + 1));
+            csvWriter.append(netflixMovie.getShowId() == null ? "" : netflixMovie.getShowId());
+            csvWriter.append(",");
+            csvWriter.append(netflixMovie.getType() == null ? "" : netflixMovie.getType());
+            csvWriter.append(",");
+            csvWriter.append(netflixMovie.getTitle() == null ? "" : netflixMovie.getTitle());
+            csvWriter.append(",");
+            csvWriter.append(netflixMovie.getDirector() == null ? "" : "\"" + netflixMovie.getDirector() + "\"");
+            csvWriter.append(",");
+            csvWriter.append(netflixMovie.getCast() == null ? "" : "\"" + netflixMovie.getCast() + "\"");
+            csvWriter.append(",");
+            csvWriter.append(netflixMovie.getCountry() == null ? "" : "\"" + netflixMovie.getCountry() + "\"");
+            csvWriter.append(",");
+            csvWriter.append(netflixMovie.getDateAdded() == null ? "" : netflixMovie.getDateAdded().format(DateTimeFormatter.ofPattern("dd-MMM-yy")));
+            csvWriter.append(",");
+            csvWriter.append(netflixMovie.getReleaseYear() == null ? "" : String.valueOf(netflixMovie.getReleaseYear()));
+            csvWriter.append(",");
+            csvWriter.append(netflixMovie.getRating() == null ? "" : netflixMovie.getRating());
+            csvWriter.append(",");
+            csvWriter.append(netflixMovie.getDuration() == null ? "" : netflixMovie.getDuration());
+            csvWriter.append(",");
+            csvWriter.append(netflixMovie.getListedIn() == null ? "" : "\"" + netflixMovie.getListedIn() + "\"");
+            csvWriter.append(",");
+            csvWriter.append(netflixMovie.getDescription() == null ? " " : "\"" + netflixMovie.getDescription() + "\"");
+            csvWriter.append("\n");
 
-        netflixMovie.setShowId("s"+(noOfRecords(file)+1));
-        FileWriter csvWriter = new FileWriter(file,true);
-        csvWriter.append(netflixMovie.getShowId()==null ? "" : netflixMovie.getShowId());
-        csvWriter.append(",");
-        csvWriter.append(netflixMovie.getType()==null ? "" : netflixMovie.getType());
-        csvWriter.append(",");
-        csvWriter.append(netflixMovie.getTitle()==null ? "" : netflixMovie.getTitle());
-        csvWriter.append(",");
-        csvWriter.append(netflixMovie.getDirector()==null ? "" : "\""+netflixMovie.getDirector()+"\"");
-        csvWriter.append(",");
-        csvWriter.append(netflixMovie.getCast()==null ? "" : "\""+netflixMovie.getCast()+"\"");
-        csvWriter.append(",");
-        csvWriter.append(netflixMovie.getCountry()==null ? "" : "\""+netflixMovie.getCountry()+"\"");
-        csvWriter.append(",");
-        csvWriter.append(netflixMovie.getDateAdded()==null ? "" : netflixMovie.getDateAdded().format(DateTimeFormatter.ofPattern("dd-MMM-yy")));
-        csvWriter.append(",");
-        csvWriter.append(netflixMovie.getReleaseYear() == null ? "" : String.valueOf(netflixMovie.getReleaseYear()));
-        csvWriter.append(",");
-        csvWriter.append(netflixMovie.getRating()==null ? "" : netflixMovie.getRating());
-        csvWriter.append(",");
-        csvWriter.append(netflixMovie.getDuration()==null ? "" : netflixMovie.getDuration());
-        csvWriter.append(",");
-        csvWriter.append(netflixMovie.getListedIn()==null ? "" : "\""+netflixMovie.getListedIn()+"\"");
-        csvWriter.append(",");
-        csvWriter.append(netflixMovie.getDescription()==null ? " " : "\""+netflixMovie.getDescription()+"\"");
-        csvWriter.append("\n");
-        csvWriter.close();
-        logger.info("CSV file updated successfully!");
+            logger.info("CSV file updated successfully!");
+
+        }
+        catch(Exception e){
+            logger.error(e.getMessage(),e);
+        }
+        finally {
+            if(csvWriter != null)
+                csvWriter.close();
+        }
         return netflixMovie;
     }
-    private int noOfRecords(File file) throws  Exception{
-
-        FileReader fileReader = new FileReader(file);
+    //Calculating number of records present in the csv file at that instant
+    private int noOfRecords() throws  Exception{
+        FileReader fileReader = new FileReader("netflix_titles1.csv");
         List<String[]> csvData = new CSVReaderBuilder(fileReader).withSkipLines(1).build().readAll();
         logger.info("No of records in csv file: "+csvData.size());
         return csvData.size();
@@ -135,16 +148,19 @@ public class NetflixMovieServiceImpl implements NetflixMovieService{
     //Adding cron job to sync any extra content in CSV file to DB
     @Scheduled(cron = "0 */5 * * * ?")
     public void syncDBWithCSV() throws Exception {
+
+
         logger.info("Running cron job at "+ LocalDate.now());
-        int csvRecords = noOfRecords(file);
+        int csvRecords = noOfRecords();
         int dbRecords = (int) netflixMovieRepository.count();
         //int dbRecords = 19;
         if(csvRecords <= dbRecords)
             logger.info("Database is in sync with CSV file.");
         else{
-            FileReader fileReader = new FileReader(file);
+
+            FileReader fileReader = new FileReader("netflix_titles1.csv");
             List<String[]> csvData = new CSVReaderBuilder(fileReader).withSkipLines(dbRecords+1).build().readAll();
-          //  csvData.stream().forEach(data -> Arrays.asList(data).forEach(System.out::println));
+            csvData.stream().forEach(data -> Arrays.asList(data).forEach(System.out::println));
             csvData.stream().forEach(records -> {
                 NetflixMovie movie = new NetflixMovie();
                 movie.setShowId(records[0]);
@@ -166,8 +182,4 @@ public class NetflixMovieServiceImpl implements NetflixMovieService{
             }
 
     }
-   /* public static void main(String args[]) throws Exception {
-        NetflixMovieServiceImpl obj = new NetflixMovieServiceImpl();
-        obj.syncDBWithCSV();
-    }*/
 }

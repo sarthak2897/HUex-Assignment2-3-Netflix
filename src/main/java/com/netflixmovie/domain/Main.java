@@ -2,11 +2,12 @@ package com.netflixmovie.domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.FileCopyUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
+import java.nio.Buffer;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,10 +20,8 @@ public class Main {
     public static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MMM-yy");
     //public static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final static Logger logger = LoggerFactory.getLogger(Main.class.getName());
-    public static void main(String[] args) {
-        //File csvFile = new File("C:\\Users\\hp\\Downloads\\netflix_title.csv");
-        //File csvFile = new File("C:\\Users\\sartnagpal\\Downloads\\netflix-titles.csv");
-        File csvFile = new File("./src/main/resources/netflix_titles1.csv");
+    public static void main(String[] args) throws IOException {
+        File csvFile = new File("netflix_titles1.csv");
         Scanner sc = new Scanner(System.in);
         LocalDate  startDate = LocalDate.parse(LocalDate.parse(args[0],dtf).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         LocalDate  endDate = LocalDate.parse(LocalDate.parse(args[1],dtf).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
@@ -71,7 +70,9 @@ public class Main {
     public static List convertCSVToList(File csvFile) {
         try{
         BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFile));
+            //BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
         String row = bufferedReader.readLine();
+
             List<NetflixMovie> moviesList = new ArrayList<NetflixMovie>();
         if(row.length() == 0 || row == null)
             throw new Exception("File empty");

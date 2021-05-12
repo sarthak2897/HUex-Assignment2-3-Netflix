@@ -6,7 +6,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
 #      - MYSQL_PASSWORD=root
-      - MYSQL_DATABASE=employee_details
+      - MYSQL_DATABASE=netflix_details
     ports:
       - "3307:3306"
     volumes:
@@ -16,7 +16,7 @@ services:
     ports:
       - "8085:8085"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://netflixDB:3306/employee_details?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false
+      SPRING_DATASOURCE_URL: jdbc:mysql://netflixDB:3306/netflix_details?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: "root"
       SPRING_DATASOURCE_PASSWORD: "root"
     build:
